@@ -1,0 +1,4 @@
+import test from 'node:test';import assert from 'node:assert/strict';import {editAreaNode,moveAreaBorder} from '../server/world.mjs';
+const document=()=>({areas:[{polygon:[[0,0],[10,0],[10,10],[0,10]]},{polygon:[[10,0],[20,0],[20,10],[10,10]]}]});
+test('insert, reshape and remove shared nodes without separating neighbouring borders',()=>{const d=document();editAreaNode(d,0,'add',1,[10,5]);assert.ok(d.areas.every(a=>a.polygon.some(p=>p[0]===10&&p[1]===5)));moveAreaBorder(d,0,[2],2,0);assert.ok(d.areas.every(a=>a.polygon.some(p=>p[0]===12&&p[1]===5)));editAreaNode(d,0,'remove',2);assert.deepEqual(d,document());});
+test('invalid removal is atomic and keeps at least three corners',()=>{const d={areas:[{polygon:[[0,0],[10,0],[0,10]]}]},before=structuredClone(d);assert.throws(()=>editAreaNode(d,0,'remove',1),/at least three/);assert.deepEqual(d,before);});

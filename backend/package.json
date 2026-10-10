@@ -1,0 +1,1 @@
+{"name":"realmgame-foundation","version":"0.1.0","private":true,"type":"module","scripts":{"start":"node --env-file-if-exists=.env server/index.mjs","test":"node --test test/*.test.mjs"},"engines":{"node":">=22.18"},"dependencies":{"nodemailer":"^10.0.15","three":"0.186.1","ws":"8.22.0"}}

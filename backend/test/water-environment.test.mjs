@@ -1,0 +1,3 @@
+import test from 'node:test';import assert from 'node:assert/strict';import {waterProfile} from '../../shared/water-environment.mjs';
+test('river flow follows the long axis of narrow channels',()=>{const north=(x,y)=>Math.abs(x)<=1?'water':'grass',east=(x,y)=>Math.abs(y)<=1?'water':'grass';assert.deepEqual(waterProfile(0,0,north).flow,[0,1]);assert.deepEqual(waterProfile(0,0,east).flow,[1,0]);assert.equal(waterProfile(0,0,north).waves,0);});
+test('wide lakes and open water receive waves rather than fast river flow',()=>{const lake=(x,y)=>Math.abs(x)<=4&&Math.abs(y)<=4?'water':'grass',ocean=()=> 'water';assert.ok(waterProfile(0,0,lake).waves>.5);assert.equal(waterProfile(0,0,ocean).waves,1);});

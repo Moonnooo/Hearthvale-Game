@@ -1,0 +1,3 @@
+import test from 'node:test';import assert from 'node:assert/strict';import {normalizePlayer,inventoryCount,receiveCapacity} from '../server/world.mjs';import {fillSlots} from './inventory-fixture.mjs';
+test('backpack counts seven displayed stacks instead of twenty-eight individual items',()=>{const p=normalizePlayer({inventory:{logs:9,ore:10,tin:1,iron:2,coal:3,zinc:2,bronzePickaxe:1}});assert.equal(inventoryCount(p),7);assert.ok(receiveCapacity(p,'logs')>28);});
+test('a full backpack accepts existing stacks but rejects a new item type',()=>{const p=normalizePlayer({inventory:{logs:500}});fillSlots(p,['ore']);assert.equal(inventoryCount(p),28);assert.ok(receiveCapacity(p,'logs')>0);assert.equal(receiveCapacity(p,'ore'),0);});

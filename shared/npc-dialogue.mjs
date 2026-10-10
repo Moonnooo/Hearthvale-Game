@@ -1,0 +1,4 @@
+export function dialogueBlocks(text){
+ return String(text||'').split(/\n\s*\n/).map(part=>{const lines=part.trim().split('\n').map(s=>s.trim()).filter(Boolean),title=lines[0]?.endsWith(':')?lines.shift().slice(0,-1):null;return {title,lines,numbered:lines.length>0&&lines.every(s=>/^\d+\.\s/.test(s))};}).filter(b=>b.title||b.lines.length);
+}
+export function renderNpcDialogue(container,text){container.replaceChildren();for(const block of dialogueBlocks(text)){const section=document.createElement('section');if(block.title){const title=document.createElement('h3');title.textContent=block.title;section.append(title);}if(block.numbered){const list=document.createElement('ol');for(const line of block.lines){const item=document.createElement('li');item.textContent=line.replace(/^\d+\.\s*/,'');list.append(item);}section.append(list);}else{const p=document.createElement('p');p.textContent=block.lines.join(' ');section.append(p);}container.append(section);}}

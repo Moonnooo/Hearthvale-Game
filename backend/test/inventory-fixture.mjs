@@ -1,0 +1,1 @@
+import {ITEMS,inventoryCount} from '../server/world.mjs';export function fillSlots(p,exclude=[]){for(const key of Object.keys(ITEMS)){if(inventoryCount(p)>=28)break;if(!exclude.includes(key)&&!p.inventory[key])p.inventory[key]=1;}return p;}

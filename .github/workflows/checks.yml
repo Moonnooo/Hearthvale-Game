@@ -1,0 +1,22 @@
+name: Checks
+on:
+  pull_request:
+  push:
+    branches: [main, 'community/**']
+permissions:
+  contents: read
+jobs:
+  backend-and-worlds:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          lfs: true
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+          cache: npm
+          cache-dependency-path: backend/package-lock.json
+      - run: npm ci --prefix backend --ignore-scripts
+      - run: npm test
+      - run: npm run world:check

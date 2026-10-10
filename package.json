@@ -1,0 +1,5 @@
+{
+ "name":"hearthvale-community", "private":true, "type":"module",
+ "scripts":{"test":"npm --prefix backend test","world:check":"node tools/check-worlds.mjs","world:export":"node tools/export-local-world.mjs","world:apply":"node tools/apply-world.mjs"},
+ "engines":{"node":">=22.18"}
+}

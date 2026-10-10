@@ -1,0 +1,14 @@
+import test from 'node:test';import assert from 'node:assert/strict';
+import {exportWorldDocument,expandEditorBank,moveEditorSelection,rotateEditorBuilding,applyWorldDocument,NPCS,adjacentPath,inInteractionRange,walkable,distance} from '../server/world.mjs';
+import {Store} from '../server/store.mjs';import {Game} from '../server/game.mjs';
+test('fine-positioned bank supports talking and banking across its blocked counter in every orientation',()=>{
+ const original=exportWorldDocument();let store;
+ try{
+  let doc=structuredClone(original);doc.regions.push({id:'counter-test',name:'Counter test',x:64,y:0,width:64,height:64,published:true,terrain:'grass',tiles:Object.fromEntries(Array.from({length:4096},(_,i)=>[`${i%64},${Math.floor(i/64)}`,'grass']))});doc.npcs.push({id:'counter-mage',name:'Counter mage',type:'mage',x:70,y:40});const index=doc.buildings.findIndex(b=>b.id==='bank');doc=expandEditorBank(doc,index);doc=moveEditorSelection(doc,[{collection:'buildings',index}],80-doc.buildings[index].x,40-doc.buildings[index].y);doc.buildings[index].offsetY=-.45;doc.buildings[index].furnishings=[...[-.4163,1.0556,2.5274].map((x,i)=>({id:'BankChest_'+(i+1),source:'BankChest_'+(i+1),x,y:2.7745,height:0,rotation:0})),{id:'VaultCoinChest',source:'VaultCoinChest',x:-1.9556,y:6.2839,height:0,rotation:0}];
+  for(let turn=0;turn<4;turn++){
+   try{applyWorldDocument(doc);}catch(e){throw Error('Turn '+turn+': '+e.message);}for(const clerk of NPCS.filter(n=>n.type==='banker')){const path=adjacentPath({x:70,y:41},clerk);assert.ok(path,clerk.id+' turn '+turn);const last=path.at(-1),point={x:last[0],y:last[1]};assert.ok(inInteractionRange(point,clerk));assert.ok(walkable(point.x,point.y));assert.ok(!inInteractionRange({x:clerk.x,y:clerk.y-3},clerk));}
+   if(turn===0){const sealed=structuredClone(doc);sealed.buildings[index].open=sealed.buildings[index].open.filter(([x,y])=>y!==49);assert.throws(()=>applyWorldDocument(sealed),/Unreachable building floor/);const clerk=NPCS.find(n=>n.type==='banker'),path=adjacentPath({x:70,y:41},clerk),last=path.at(-1);assert.equal(distance({x:last[0],y:last[1]},clerk),2);assert.equal(walkable(clerk.x,clerk.y-1),false);store=new Store(':memory:');const messages=[],game=new Game(store),p=game.join(store.create('Counter tester').player,m=>messages.push(m));p.x=last[0];p.y=last[1];p.inventory.logs=5;game.command(p,{type:'bank',operation:'deposit',item:'logs',amount:2});assert.equal(p.bank.logs,2);assert.equal(p.inventory.logs,3);game.command(p,{type:'interact',id:clerk.id},1000);game.tick(1000);game.tick(5000);assert.ok(messages.some(m=>m.type==='bankOpen'));p.x=70;p.y=41;game.command(p,{type:'bank',operation:'deposit',item:'logs',amount:1});assert.equal(p.bank.logs,2);}
+   doc=rotateEditorBuilding(doc,index);
+  }
+ }finally{store?.close();applyWorldDocument(original);}
+});
